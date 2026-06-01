@@ -708,16 +708,17 @@ body {
     border-radius: 24px;
     width: 90%;
     max-width: 480px;
+    min-width: 280px; /* Forces layout stability so bounding boxes don't render at 0 on phones */
     text-align: center;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    overflow: visible;
+    overflow: visible; /* Permits the visual thunder lightning sparks to overflow bounds safely */
 }
 
 #electric-canvas {
     position: absolute;
     top: -60px;
     left: -60px;
-    pointer-events: none;
+    pointer-events: none; /* Crucial: ensures users can click/tap input forms right through the rendering plane */
     z-index: 10;
 }
 
@@ -761,6 +762,16 @@ body {
 }
 
 @media screen and (max-width: 600px) {
+    #electric-container {
+        padding: 2.5rem 1.5rem; /* Scales back container padding to prevent layout clipping */
+    }
+
+    #electric-canvas {
+        /* Optional mobile adjustment wrapper adjustments can be mirrored over script values */
+        top: -60px;
+        left: -60px;
+    }
+
     .dashboard-banner {
         padding: 1.5rem !important;      
         gap: 1.5rem !important;
