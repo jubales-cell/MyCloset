@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareMyCloset - Admin UI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <a href="#" class="app-logo">My<span>Closet.</span></a>
+        <div class="header-right-controls" style="display: flex; align-items: center; gap: 2rem;">
+            <nav class="app-navbar">
+                <a href="#" class="active"><i class="fa-solid fa-shirt"></i> Browse</a>
+                <a href="#"><i class="fa-solid fa-bell"></i> Requests</a>
+            </nav>
+            <button class="nav-add-btn" id="nav-add-btn">
+                <i class="fa-solid fa-plus"></i> Add New Item
+            </button>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <section class="dashboard-banner">
+            <div class="welcome-text">
+                <h1>Your Shared <span>Closet</span></h1>
+                <p>Your friends can browse your items and submit borrow requests here.</p>
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3 id="total-count">0</h3>
+                    <p>Total Items</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="loan-count">0</h3>
+                    <p>Out on Loan</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="empty-state-container" id="empty-state">
+            <div class="empty-box">
+                <i class="fa-solid fa-boxes-empty empty-icon"></i>
+                <h2>Your closet is empty</h2>
+                <p>You haven't uploaded any clothes or accessories yet. Share your style by adding your first item!</p>
+                <button class="add-item-btn" id="open-modal-btn"><i class="fa-solid fa-plus"></i> Add New Item</button>
+            </div>
+        </section>
+
+        <section class="items-grid" id="items-grid" style="display: none;"></section>
+
+    </main>
+
+    <div class="modal-overlay" id="item-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Add New <span>Item</span></h2>
+                <i class="fa-solid fa-xmark close-icon" id="close-modal-btn"></i>
+            </div>
+            <form id="add-item-form">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="item-name" placeholder="e.g., Vintage Denim Jacket" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="item-category">
+                            <option value="Clothes">Clothes</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Slippers">Slippers></option>
+                            <option value="Pants">Pants></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Size / Type</label>
+                        <input type="text" id="item-size" placeholder="e.g., Large, Medium, One Size" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity Available</label>
+                    <input type="number" id="item-qty" min="1" value="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Item Display Graphic</label>
+                    <label for="item-image" class="image-upload-label">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p id="upload-text">Click to upload an item image</p>
+                        <input type="file" id="item-image" accept="image/*" style="display: none;">
+                    </label>
+                    <div id="image-preview-wrapper" style="display: none; margin-top: 1rem; text-align: center;">
+                        <img id="form-img-preview" src="" alt="Preview" style="max-height: 12rem; border-radius: 0.8rem; border: 1px solid var(--accent-coral);">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-form-btn">Save to Closet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="details-modal">
+        <div class="modal-box details-modal-box">
+            <div class="modal-header">
+                <h2>Manage <span>Item</span></h2>
+                <i class="fa-solid fa-xmark close-icon" id="close-details-btn"></i>
+            </div>
+            
+            <div class="details-content-layout">
+                <div class="details-image-window"></div>
+                
+                <div class="details-info-window">
+                    <form id="edit-item-form-ctx">
+                        <div class="edit-field-group">
+                            <label class="edit-input-label">Item Title</label>
+                            <h1 id="details-name">Item Name</h1>
+                            <input type="text" id="edit-details-name-input" class="modern-inline-input" style="display: none;" required>
+                        </div>
+                        
+                        <span class="badge detail-status-badge" id="details-status-badge">Available</span>
+                        
+                        <hr class="details-divider" style="margin: 1.5rem 0; border: 0; border-top: 1px solid rgba(255,255,255,0.1);">
+                        
+                        <div class="info-specs-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                            <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Category</label>
+                                <p id="details-category" style="font-weight: 600;">-</p>
+                                <select id="edit-details-category-input" class="modern-inline-input" style="display: none; font-size: 1rem; padding: 0.5rem;">
+                                    <option value="Clothes">Clothes</option>
+                                    <option value="Accessories">Accessories</option>
+                                    <option value="Shoes">Shoes</option>
+                                </select>
+                            </div>
+                            <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Size</label>
+                                <p id="details-size" style="font-weight: 600;">-</p>
+                                <input type="text" id="edit-details-size-input" class="modern-inline-input" style="display: none; font-size: 1rem; padding: 0.5rem;" required>
+                            </div>
+                            <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Quantity</label>
+                                <p id="details-qty" style="font-weight: 600;">-</p>
+                                <input type="number" id="edit-details-qty-input" class="modern-inline-input" min="1" style="display: none; font-size: 1rem; padding: 0.5rem;" required>
+                            </div>
+                        </div>
+
+                        <div class="management-action-row" style="margin-top: 2rem; display: flex; gap: 1rem;">
+                            <button type="button" class="action-btn-ctrl" id="toggle-edit-mode-btn">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Details
+                            </button>
+                            <button type="submit" class="action-btn-ctrl" id="save-edit-mode-btn" style="display: none; background: #52b788; color: #fff; border-color: #52b788;">
+                                <i class="fa-solid fa-check"></i> Save Changes
+                            </button>
+                            <button type="button" class="action-btn-ctrl" id="cancel-edit-mode-btn" style="display: none; background: transparent; color: #aaa; border-color: rgba(255,255,255,0.1);">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>ShareMyCloset System v1.0 • Capstone Sandbox</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>

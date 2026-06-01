@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareMyCloset</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="nameOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s ease;">
+        <div style="background: #1e1e1e; padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
+            <div style="font-size: 3rem; color: #ff7a59; margin-bottom: 1rem;"><i class="fa-solid fa-shirt"></i></div>
+            <h2 style="color: white; margin-bottom: 10px; font-family: sans-serif; font-size: 1.8rem;">Welcome to MyCloset!</h2>
+            <p style="color: #888; margin-bottom: 25px; font-size: 14px; line-height: 1.4;">Please enter your full name to browse the collection and borrow items.</p>
+            <input type="text" id="friendNameInput" placeholder="Enter Your Full Name" style="padding: 14px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; margin-bottom: 20px; font-size: 16px; outline: none; text-align: center; font-weight: 500;">
+            <br>
+            <button id="enterClosetBtn" style="padding: 12px 30px; background: #ff7a59; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; transition: background 0.2s;">View Closet</button>
+        </div>
+    </div>
+
+    <header class="app-header">
+        <a href="#" class="app-logo">My<span>Closet.</span></a>
+        <div class="header-right-controls" style="display: flex; align-items: center; gap: 2rem;">
+            <nav class="app-navbar">
+                <a href="#" class="active"><i class="fa-solid fa-shirt"></i> Browse</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <section class="dashboard-banner">
+            <div class="welcome-text">
+                <h1>Welcome to My <span>Closet</span></h1>
+                <p>Browse through my available clothes and accessories below to pick out items you'd like to borrow.</p>
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3 id="total-count">0</h3>
+                    <p>Total Items</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="loan-count">0</h3>
+                    <p>Out on Loan</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="empty-state-container" id="empty-state">
+            <div class="empty-box">
+                <i class="fa-solid fa-boxes-empty empty-icon"></i>
+                <h2>Closet is currently empty</h2>
+                <p>No clothing items or accessories have been uploaded to this closet environment yet.</p>
+            </div>
+        </section>
+
+        <section class="items-grid" id="items-grid" style="display: none;"></section>
+
+    </main>
+
+    <div class="modal-overlay" id="details-modal">
+        <div class="modal-box details-modal-box">
+            <div class="modal-header">
+                <h2>Item <span>Details</span></h2>
+                <i class="fa-solid fa-xmark close-icon" id="close-details-btn"></i>
+            </div>
+            
+            <div class="details-content-layout">
+                <div class="details-image-window" id="details-image-container"></div>
+                
+                <div class="details-info-window">
+                    <div class="edit-field-group">
+                        <label class="edit-input-label">Item Title</label>
+                        <h1 id="details-name" style="color: white; margin-top: 0.5rem;">Item Name</h1>
+                    </div>
+                    
+                    <span id="details-status-badge" class="badge detail-status-badge">Available</span>
+                    
+                    <hr class="details-divider" style="margin: 1.5rem 0; border: 0; border-top: 1px solid rgba(255,255,255,0.1);">
+                    
+                    <div class="info-specs-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.03);">
+                            <label style="font-size: 0.8rem; color: #888; display: block; margin-bottom: 0.3rem;">Category</label>
+                            <p id="details-category" style="font-weight: 600; color: white;">-</p>
+                        </div>
+                        <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.03);">
+                            <label style="font-size: 0.8rem; color: #888; display: block; margin-bottom: 0.3rem;">Size</label>
+                            <p id="details-size" style="font-weight: 600; color: white;">-</p>
+                        </div>
+                        <div class="spec-tile" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.03);">
+                            <label style="font-size: 0.8rem; color: #888; display: block; margin-bottom: 0.3rem;">Quantity</label>
+                            <p id="details-qty" style="font-weight: 600; color: white;">-</p>
+                        </div>
+                    </div>
+
+                    <div class="management-action-row" style="margin-top: 2rem;">
+                        <button type="button" class="action-btn-ctrl" id="borrow-item-action-btn" style="width: 100%; background: #ff7a59; color: #fff; border: none; padding: 14px; font-weight: bold; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
+                            <i class="fa-solid fa-hand-holding-hand"></i> Borrow This Item
+                        </button>
+                        
+                        <button type="button" class="action-btn-ctrl" id="return-item-action-btn" style="width: 100%; background: #4B5563; color: #fff; border: none; padding: 14px; font-weight: bold; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: background 0.2s; margin-top: 10px; display: none;">
+                            <i class="fa-solid fa-rotate-left"></i> Return This Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>ShareMyCloset System v1.0 • Capstone Sandbox</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
