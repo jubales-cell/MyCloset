@@ -688,8 +688,6 @@ body {
     }
 }
 
-
-
 /* --- OUT OF STOCK CONTAINER AND BADGE STYLES --- */
 
 /* Makes the entire card look gray and muted */
@@ -699,8 +697,6 @@ body {
     cursor: not-allowed;
 }
 
-
-
 /* Forces the badge to a cool dark gray background with white text when out of stock */
 .badge.out-of-stock {
     background: #374151 !important; /* Dark slate gray container */
@@ -709,28 +705,88 @@ body {
     box-shadow: none !important;
 }
 
-
 /* ==========================================================================
    MOBILE RESPONSIVENESS PATCH (Fixes mobile squeezing and overlapping)
    ========================================================================== */
 
 @media screen and (max-width: 600px) {
-    /* 1. Adjust Main Grid Layout to handle smaller devices seamlessly */
+    /* --- WELCOME HEADER CONTAINER FIXES --- */
+    .dashboard-banner {
+        padding: 1.5rem !important;      /* Keep the container slim and sleek */
+        gap: 1.5rem !important;
+        margin-bottom: 2rem !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .welcome-text {
+        text-align: center !important;  /* Center things beautifully on phones */
+    }
+
+    .welcome-text h1 {
+        font-size: 2.2rem !important;    /* Scale text down cleanly so "Closet" fits */
+        line-height: 1.3 !important;
+    }
+
+    .welcome-text p {
+        font-size: 1.1rem !important;    /* Make description match screen nicely */
+        margin-top: 0.4rem !important;
+    }
+
+    .stats-row {
+        display: flex !important;
+        flex-direction: row !important; /* Force side-by-side display */
+        justify-content: center !important;
+        gap: 1rem !important;
+        width: 100% !important;
+    }
+
+    .stat-card {
+        flex: 1 !important;
+        min-width: 0 !important;        /* Prevent boxes from widening off-screen */
+        padding: 1rem !important;       /* Smaller inner margins */
+    }
+
+    .stat-card h3 {
+        font-size: 1.8rem !important;    /* Crisp numbers layout */
+    }
+
+    .stat-card p {
+        font-size: 0.9rem !important;    /* Smaller subtext descriptions */
+    }
+
+    /* --- ITEM DETAILS MODAL SPECIFIC IMAGE SCALE FIXES --- */
+    .details-image-window img {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 180px !important;
+        object-fit: contain !important;  /* Keeps item crisp without cutting elements off */
+        border-radius: 8px !important;
+    }
+    
+    .details-modal-box {
+        padding-top: 3.5rem !important;  /* Gives X close element comfortable padding */
+        width: 95% !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        padding: 20px !important;
+    }
+
+    /* --- MAIN FEED GRID MODIFICATIONS --- */
     .items-grid {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
         gap: 12px !important;
         padding: 8px !important;
     }
 
-    /* 2. Fix the Card structures so they do not stretch visually */
     .item-card {
         display: flex;
         flex-direction: column;
-        height: auto !important; /* Allow card to dynamically resize based on content */
+        height: auto !important;
     }
 
     .item-display {
-        height: 160px !important; /* Cap image height so it stays crisp */
+        height: 160px !important;
         width: 100%;
         overflow: hidden;
     }
@@ -738,49 +794,42 @@ body {
     .item-display img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Keeps image from warping or squishing */
-    }
-
-    /* 3. Fix the Details Pop-Up Modal layout on mobile */
-    .details-modal-box {
-        width: 95% !important;
-        max-height: 90vh !important;
-        overflow-y: auto !important; /* Let user scroll inside modal if screen is tiny */
-        padding: 20px !important;
+        object-fit: cover;
     }
 
     .details-content-layout {
         display: flex !important;
-        flex-direction: column !important; /* Stack image on top of details instead of side-by-side */
+        flex-direction: column !important;
         gap: 15px !important;
     }
 
     .details-image-window {
-        height: 200px !important; /* Set a standard readable size for the item photo */
+        height: 200px !important;
         width: 100% !important;
     }
 
-    /* 4. Fix the 3-column specification grid (Category, Size, Qty) */
     .info-specs-grid {
-        grid-template-columns: repeat(3, 1fr) !important; /* Keep 3 columns but reduce padding */
+        grid-template-columns: repeat(3, 1fr) !important;
+        display: grid !important;       /* Grid items layout */
         gap: 8px !important;
         margin-top: 15px !important;
     }
 
     .spec-tile {
-        padding: 8px 4px !important; /* Reduce padding inside boxes so text doesn't wrap messily */
+        padding: 8px 4px !important;
         text-align: center;
+        border-left: none !important;
+        border-top: 3px solid var(--accent-coral) !important; /* Top borders align better inside columns */
     }
 
     .spec-tile label {
-        font-size: 0.7rem !important; /* Slightly smaller labels */
+        font-size: 0.7rem !important;
     }
 
     .spec-tile p {
-        font-size: 0.85rem !important; /* Clear, legible output font */
+        font-size: 0.85rem !important;
     }
 
-    /* 5. Clean up Action Buttons spacing */
     .management-action-row {
         margin-top: 20px !important;
     }
