@@ -273,14 +273,12 @@ if(itemsGrid) {
             const cleanUserSessionName = currentBorrowerName.trim().toLowerCase();
             const cleanDatabaseBorrowerName = borrower.trim().toLowerCase();
 
-            // Item must be unavailable, and current browser name must match who took it!
             if ((status === "Out on Loan" || status === "Out of Stock") && cleanUserSessionName === cleanDatabaseBorrowerName) {
                 returnItemActionBtn.style.display = "block";
                 returnItemActionBtn.style.background = "#4B5563"; 
                 returnItemActionBtn.style.color = "#ffffff";
                 returnItemActionBtn.style.cursor = "pointer";
             } else {
-                // Hides return functionality entirely if names don't align
                 returnItemActionBtn.style.display = "none";
             }
         }
@@ -444,13 +442,214 @@ if(editItemFormCtx && isPlatformAdmin) {
 }
 
 // --- VISITOR ACCESS AUTHENTICATION OVERLAY ENGINE ---
+// Defined globally so both the loop setup and the button handlers can reference them flawlessly.
+let electricAnimationFrameId = null;
+let electricResizeObserver = null;
+
 document.addEventListener("DOMContentLoaded", () => {
     const nameOverlay = document.getElementById("nameOverlay");
     const enterClosetBtn = document.getElementById("enterClosetBtn");
     const friendNameInput = document.getElementById("friendNameInput");
+    
+    const container = document.getElementById("electric-container");
+    const canvas = document.getElementById("electric-canvas");
+    
+    let timeTimeline = 0;
+    let lastFrameTime = performance.now();
 
     if (nameOverlay && currentBorrowerName) {
         nameOverlay.style.display = "none";
+    }
+
+    if (nameOverlay && nameOverlay.style.display !== "none" && canvas && container) {
+        const ctx = canvas.getContext('2d');
+
+        const color = "#ff7a59";       
+        const speed = 1.0;             
+        const chaos = 0.12;            
+        const borderRadius = 24;       
+        
+        const octaves = 10;
+        const lacunarity = 1.6;
+        const gain = 0.7;
+        const amplitude = chaos;
+        const frequency = 10;
+        const baseFlatness = 0;
+        const displacement = 60;
+        const borderOffset = 60;
+
+        // Mathematical High-Fidelity 2D Procedural Noise Interpolators
+        const noiseRandom = (x) => {
+            return (Math.sin(x * 12.9898) * 43758.5453) % 1;
+        };
+
+        const noise2D = (x, y) => {
+            const i = Math.floor(x);
+            const j = Math.floor(y);
+            const fx = x - i;
+            const fy = y - j;
+
+            const a = noiseRandom(i + j * 57);
+            const b = noiseRandom(i + 1 + j * 57);
+            const c = noiseRandom(i + (j + 1) * 57);
+            const d = noiseRandom(i + 1 + (j + 1) * 57);
+
+            const ux = fx * fx * (3.0 - 2.0 * fx);
+            const uy = fy * fy * (3.0 - 2.0 * fy);
+
+            return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+        };
+
+        const octavedNoise = (x, octaves, lacunarity, gain, baseAmplitude, baseFrequency, time, seed, baseFlatness) => {
+            let y = 0;
+            let amp = baseAmplitude;
+            let freq = baseFrequency;
+
+            for (let i = 0; i < octaves; i++) {
+                let octaveAmplitude = amp;
+                if (i === 0) octaveAmplitude *= baseFlatness;
+                y += octaveAmplitude * noise2D(freq * x + seed * 100, time * freq * 0.3);
+                freq *= lacunarity;
+                amp *= gain;
+            }
+            return y;
+        };
+
+        const getCornerPoint = (centerX, centerY, radius, startAngle, arcLength, progress) => {
+            const angle = startAngle + progress * arcLength;
+            return {
+                x: centerX + radius * Math.cos(angle),
+                y: centerY + radius * Math.sin(angle)
+            };
+        };
+
+        const getRoundedRectPoint = (t, left, top, width, height, radius) => {
+            const straightWidth = width - 2 * radius;
+            const straightHeight = height - 2 * radius;
+            const cornerArc = (Math.PI * radius) / 2;
+            const totalPerimeter = 2 * straightWidth + 2 * straightHeight + 4 * cornerArc;
+            const distance = t * totalPerimeter;
+
+            let accumulated = 0;
+
+            if (distance <= accumulated + straightWidth) {
+                return { x: left + radius + ((distance - accumulated) / straightWidth) * straightWidth, y: top };
+            }
+            accumulated += straightWidth;
+
+            if (distance <= accumulated + cornerArc) {
+                return getCornerPoint(left + width - radius, top + radius, radius, -Math.PI / 2, Math.PI / 2, (distance - accumulated) / cornerArc);
+            }
+            accumulated += cornerArc;
+
+            if (distance <= accumulated + straightHeight) {
+                return { x: left + width, y: top + radius + ((distance - accumulated) / straightHeight) * straightHeight };
+            }
+            accumulated += straightHeight;
+
+            if (distance <= accumulated + cornerArc) {
+                return getCornerPoint(left + width - radius, top + height - radius, radius, 0, Math.PI / 2, (distance - accumulated) / cornerArc);
+            }
+            accumulated += cornerArc;
+
+            if (distance <= accumulated + straightWidth) {
+                return { x: left + width - radius - ((distance - accumulated) / straightWidth) * straightWidth, y: top + height };
+            }
+            accumulated += straightWidth;
+
+            if (distance <= accumulated + cornerArc) {
+                return getCornerPoint(left + radius, top + height - radius, radius, Math.PI / 2, Math.PI / 2, (distance - accumulated) / cornerArc);
+            }
+            accumulated += cornerArc;
+
+            if (distance <= accumulated + straightHeight) {
+                return { x: left, y: top + height - radius - ((distance - accumulated) / straightHeight) * straightHeight };
+            }
+            accumulated += straightHeight;
+
+            return getCornerPoint(left + radius, top + radius, radius, Math.PI, Math.PI / 2, (distance - accumulated) / cornerArc);
+        };
+
+        // Resolution Sizing and Precision Multipliers Multi-Target Canvas Trackers
+        let canvasW = 0, canvasH = 0;
+        function updateSize() {
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
+            canvasW = rect.width + borderOffset * 2;
+            canvasH = rect.height + borderOffset * 2;
+
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = canvasW * dpr;
+            canvas.height = canvasH * dpr;
+            canvas.style.width = `${canvasW}px`;
+            canvas.style.height = `${canvasH}px`;
+            ctx.scale(dpr, dpr);
+        }
+
+        updateSize();
+        electricResizeObserver = new ResizeObserver(() => updateSize());
+        electricResizeObserver.observe(container);
+
+        // Core Render Processing Animation Loop Pipeline Execution Frame
+        function drawElectricBorder(currentTime) {
+            // Failsafe safety catch to guarantee it terminates if it breaks past initial event listeners
+            if (nameOverlay.style.display === "none") {
+                if (electricAnimationFrameId) cancelAnimationFrame(electricAnimationFrameId);
+                if (electricResizeObserver) electricResizeObserver.disconnect();
+                return;
+            }
+
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const deltaTime = (currentTime - lastFrameTime) / 1000;
+            timeTimeline += deltaTime * speed;
+            lastFrameTime = currentTime;
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.scale(dpr, dpr);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            const scale = displacement;
+            const left = borderOffset;
+            const top = borderOffset;
+            const borderWidth = canvasW - 2 * borderOffset;
+            const borderHeight = canvasH - 2 * borderOffset;
+            const maxRadius = Math.min(borderWidth, borderHeight) / 2;
+            const radius = Math.min(borderRadius, maxRadius);
+
+            const approximatePerimeter = 2 * (borderWidth + borderHeight) + 2 * Math.PI * radius;
+            const sampleCount = Math.floor(approximatePerimeter / 2);
+
+            ctx.beginPath();
+
+            for (let i = 0; i <= sampleCount; i++) {
+                const progress = i / sampleCount;
+                const point = getRoundedRectPoint(progress, left, top, borderWidth, borderHeight, radius);
+
+                const xNoise = octavedNoise(progress * 8, octaves, lacunarity, gain, amplitude, frequency, timeTimeline, 0, baseFlatness);
+                const yNoise = octavedNoise(progress * 8, octaves, lacunarity, gain, amplitude, frequency, timeTimeline, 1, baseFlatness);
+
+                const displacedX = point.x + xNoise * scale;
+                const displacedY = point.y + yNoise * scale;
+
+                if (i === 0) {
+                    ctx.moveTo(displacedX, displacedY);
+                } else {
+                    ctx.lineTo(displacedX, displacedY);
+                }
+            }
+
+            ctx.closePath();
+            ctx.stroke();
+
+            electricAnimationFrameId = requestAnimationFrame(drawElectricBorder);
+        }
+
+        electricAnimationFrameId = requestAnimationFrame(drawElectricBorder);
     }
 
     if (enterClosetBtn && nameOverlay) {
@@ -462,8 +661,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             currentBorrowerName = trimmedName;
             sessionStorage.setItem('currentBorrowerName', currentBorrowerName);
+            
+            // 1. Instantly trigger CSS animations to pull away the overlay visual layer
             nameOverlay.style.opacity = "0";
-            setTimeout(() => { nameOverlay.style.display = "none"; }, 300);
+            
+            // 2. Kill the heavy mathematical canvas loop loop dead right now
+            if (electricAnimationFrameId) {
+                cancelAnimationFrame(electricAnimationFrameId);
+                electricAnimationFrameId = null;
+            }
+            
+            // 3. Unbind performance resizing track nodes
+            if (electricResizeObserver) {
+                electricResizeObserver.disconnect();
+                electricResizeObserver = null;
+            }
+
+            setTimeout(() => { 
+                nameOverlay.style.display = "none"; 
+            }, 300);
         });
     }
 });
