@@ -89,29 +89,33 @@ db.collection("clothes").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
     if (itemsGrid) itemsGrid.style.display = 'grid';
 
     closetItems.forEach(item => {
-        if (item.status === 'Out on Loan') loanCount++;
-
         const itemQty = parseInt(item.qty) || 0;
         const isOutOfStock = itemQty <= 0;
+
+        // Correct status determination based on current catalog rules
+        let badgeText = item.status;
+        if (isOutOfStock) {
+            badgeText = "Out of Stock";
+        }
+
+        if (badgeText === 'Out on Loan') loanCount++;
 
         let displayVisual = item.img.startsWith('ICON:') 
             ? `<i class="fa-solid ${item.img.split(':')[1]} item-placeholder-icon"></i>`
             : `<img src="${item.img}" alt="${item.name}">`;
 
-        let badgeText = item.status;
         let badgeClass = 'badge status-tag';
         let cardClass = 'item-card';
 
         if (isOutOfStock) {
-            badgeText = "Out of Stock";
             badgeClass += ' out-of-stock';
             cardClass += ' card-disabled';
-        } else if (item.status === 'Out on Loan') {
+        } else if (badgeText === 'Out on Loan') {
             badgeClass += ' loaned-out';
         }
 
         const cardHTML = `
-            <div class="${cardClass}" data-id="${item.id}" data-name="${item.name}" data-category="${item.category}" data-size="${item.size}" data-qty="${item.qty}" data-img="${item.img}" data-status="${item.status}" data-borrowed-by="${item.borrowedBy || ''}">
+            <div class="${cardClass}" data-id="${item.id}" data-name="${item.name}" data-category="${item.category}" data-size="${item.size}" data-qty="${itemQty}" data-img="${item.img}" data-status="${badgeText}" data-borrowed-by="${item.borrowedBy || ''}">
                 <div class="item-display">
                     ${displayVisual}
                     <span class="${badgeClass}">${badgeText}</span>
@@ -119,7 +123,7 @@ db.collection("clothes").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <p>Size: ${item.size} • ${item.category}</p>
-                    <div class="qty-tag">Qty: ${item.qty}</div>
+                    <div class="qty-tag">Qty: ${itemQty}</div>
                 </div>
             </div>
         `;
@@ -177,7 +181,7 @@ if(addItemForm) {
         const name = document.getElementById('item-name').value;
         const category = document.getElementById('item-category').value;
         const size = document.getElementById('item-size').value;
-        const qty = document.getElementById('item-qty').value;
+        const qty = parseInt(document.getElementById('item-qty').value) || 0;
 
         let iconClass = 'fa-shirt';
         if (category === 'Accessories') iconClass = 'fa-clock';
@@ -191,7 +195,7 @@ if(addItemForm) {
             size: size,
             qty: qty,
             img: trackingImage,
-            status: "Available",
+            status: qty > 0 ? "Available" : "Out of Stock",
             borrowedBy: "",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
@@ -413,6 +417,7 @@ if(editItemFormCtx && isPlatformAdmin) {
         e.preventDefault();
 
         const updatedCategory = editCategoryInput.value;
+        const updatedQty = parseInt(editQtyInput.value) || 0;
         let iconClass = 'fa-shirt';
         if (updatedCategory === 'Accessories') iconClass = 'fa-clock';
         if (updatedCategory === 'Shoes') iconClass = 'fa-shoe-prints';
@@ -421,7 +426,7 @@ if(editItemFormCtx && isPlatformAdmin) {
             name: editNameInput.value,
             category: updatedCategory,
             size: editSizeInput.value,
-            qty: editQtyInput.value
+            qty: updatedQty
         };
 
         const targetCard = document.querySelector(`.item-card[data-id="${activeEditingCardId}"]`);
@@ -442,7 +447,6 @@ if(editItemFormCtx && isPlatformAdmin) {
 }
 
 // --- VISITOR ACCESS AUTHENTICATION OVERLAY ENGINE ---
-// Defined globally so both the loop setup and the button handlers can reference them flawlessly.
 let electricAnimationFrameId = null;
 let electricResizeObserver = null;
 
@@ -592,7 +596,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Core Render Processing Animation Loop Pipeline Execution Frame
         function drawElectricBorder(currentTime) {
-            // Failsafe safety catch to guarantee it terminates if it breaks past initial event listeners
             if (nameOverlay.style.display === "none") {
                 if (electricAnimationFrameId) cancelAnimationFrame(electricAnimationFrameId);
                 if (electricResizeObserver) electricResizeObserver.disconnect();
@@ -662,16 +665,13 @@ document.addEventListener("DOMContentLoaded", () => {
             currentBorrowerName = trimmedName;
             sessionStorage.setItem('currentBorrowerName', currentBorrowerName);
             
-            // 1. Instantly trigger CSS animations to pull away the overlay visual layer
             nameOverlay.style.opacity = "0";
             
-            // 2. Kill the heavy mathematical canvas loop loop dead right now
             if (electricAnimationFrameId) {
                 cancelAnimationFrame(electricAnimationFrameId);
                 electricAnimationFrameId = null;
             }
             
-            // 3. Unbind performance resizing track nodes
             if (electricResizeObserver) {
                 electricResizeObserver.disconnect();
                 electricResizeObserver = null;
