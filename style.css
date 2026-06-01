@@ -708,3 +708,85 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: none !important;
 }
+
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS PATCH (Fixes mobile squeezing and overlapping)
+   ========================================================================== */
+
+@media screen and (max-width: 600px) {
+    /* 1. Adjust Main Grid Layout to handle smaller devices seamlessly */
+    .items-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+        gap: 12px !important;
+        padding: 8px !important;
+    }
+
+    /* 2. Fix the Card structures so they do not stretch visually */
+    .item-card {
+        display: flex;
+        flex-direction: column;
+        height: auto !important; /* Allow card to dynamically resize based on content */
+    }
+
+    .item-display {
+        height: 160px !important; /* Cap image height so it stays crisp */
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .item-display img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Keeps image from warping or squishing */
+    }
+
+    /* 3. Fix the Details Pop-Up Modal layout on mobile */
+    .details-modal-box {
+        width: 95% !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important; /* Let user scroll inside modal if screen is tiny */
+        padding: 20px !important;
+    }
+
+    .details-content-layout {
+        display: flex !important;
+        flex-direction: column !important; /* Stack image on top of details instead of side-by-side */
+        gap: 15px !important;
+    }
+
+    .details-image-window {
+        height: 200px !important; /* Set a standard readable size for the item photo */
+        width: 100% !important;
+    }
+
+    /* 4. Fix the 3-column specification grid (Category, Size, Qty) */
+    .info-specs-grid {
+        grid-template-columns: repeat(3, 1fr) !important; /* Keep 3 columns but reduce padding */
+        gap: 8px !important;
+        margin-top: 15px !important;
+    }
+
+    .spec-tile {
+        padding: 8px 4px !important; /* Reduce padding inside boxes so text doesn't wrap messily */
+        text-align: center;
+    }
+
+    .spec-tile label {
+        font-size: 0.7rem !important; /* Slightly smaller labels */
+    }
+
+    .spec-tile p {
+        font-size: 0.85rem !important; /* Clear, legible output font */
+    }
+
+    /* 5. Clean up Action Buttons spacing */
+    .management-action-row {
+        margin-top: 20px !important;
+    }
+
+    .action-btn-ctrl {
+        padding: 12px !important;
+        font-size: 0.95rem !important;
+    }
+}
