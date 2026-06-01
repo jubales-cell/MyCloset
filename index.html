@@ -6,18 +6,39 @@
     <title>ShareMyCloset</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="GhostCursor.css">
 </head>
 <body>
 
-    <div id="nameOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s ease;">
-        <div style="background: #1e1e1e; padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
-            <div style="font-size: 3rem; color: #ff7a59; margin-bottom: 1rem;"><i class="fa-solid fa-shirt"></i></div>
-            <h2 style="color: white; margin-bottom: 10px; font-family: sans-serif; font-size: 1.8rem;">Welcome to MyCloset!</h2>
-            <p style="color: #888; margin-bottom: 25px; font-size: 14px; line-height: 1.4;">Please enter your full name to browse the collection and borrow items.</p>
-            <input type="text" id="friendNameInput" placeholder="Enter Your Full Name" style="padding: 14px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; margin-bottom: 20px; font-size: 16px; outline: none; text-align: center; font-weight: 500;">
-            <br>
-            <button id="enterClosetBtn" style="padding: 12px 30px; background: #ff7a59; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; transition: background 0.2s;">View Closet</button>
+    <div id="canvas-container" class="ghost-cursor"></div>
+
+    <div id="nameOverlay" class="name-overlay">
+        
+        <div id="electric-container" class="electric-border">
+            
+            <div class="eb-canvas-container">
+                <canvas id="electric-canvas" class="eb-canvas"></canvas>
+            </div>
+            
+            <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
+            </div>
+
+            <div class="overlay-card eb-content">
+                <div style="font-size: 3rem; color: #e27d60; margin-bottom: 1rem;">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+                <h2 style="color: white; margin-bottom: 10px; font-family: sans-serif; font-size: 1.8rem;">Welcome to MyCloset!</h2>
+                <p style="color: #888; margin-bottom: 25px; font-size: 14px; line-height: 1.4;">Please enter your full name to browse the collection and borrow items.</p>
+                
+                <input type="text" id="friendNameInput" placeholder="Enter Your Full Name" style="padding: 14px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #333; background: #252525; color: white; margin-bottom: 20px; font-size: 16px; outline: none; text-align: center; font-weight: 500;">
+                <br>
+                <button id="enterClosetBtn" style="padding: 12px 30px; background: #e27d60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; transition: background 0.2s;">View Closet</button>
+            </div>
         </div>
+
     </div>
 
     <header class="app-header">
@@ -97,7 +118,7 @@
                     </div>
 
                     <div class="management-action-row" style="margin-top: 2rem;">
-                        <button type="button" class="action-btn-ctrl" id="borrow-item-action-btn" style="width: 100%; background: #ff7a59; color: #fff; border: none; padding: 14px; font-weight: bold; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
+                        <button type="button" class="action-btn-ctrl" id="borrow-item-action-btn" style="width: 100%; background: #e27d60; color: #fff; border: none; padding: 14px; font-weight: bold; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
                             <i class="fa-solid fa-hand-holding-hand"></i> Borrow This Item
                         </button>
                         
@@ -117,6 +138,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
